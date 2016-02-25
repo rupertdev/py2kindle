@@ -22,7 +22,7 @@ def send_mobi_mail(file_name):
 
     mobi_file = open(file_name, 'rb')
     msg = MIMEMultipart()
-    msg['Subject'] = "py2kindle: " + file_name
+    msg['Subject'] = 'convert'
     msg['From'] = 'py2kindle'
     msg['To'] = email
     mobi = MIMEApplication(
@@ -37,7 +37,7 @@ def send_mobi_mail(file_name):
     s.login(cp.get('config', 'user'), cp.get('config', 'pass'))
 
     try:
-        s.sendmail('gizmodo22@gmail.com', email, msg.as_string())
+        s.sendmail(cp.get('config', 'user'), email, msg.as_string())
     except smtplib.SMTPRecipientsRefused as e:
         print "Email was refused, check your send to kindle email address."
         exit()
@@ -78,6 +78,11 @@ def main():
                         const=True,
                         default=False,
                         help="Run py2kindle email configuration.")
+    parser.add_argument("--convert",
+                        action='store_const',
+                        const=True,
+                        default=False,
+                        help='Use calibre\'s ebook-convert to convert ebook to mobi and upload.')
     args = parser.parse_args()
 
     if args.config:
@@ -87,6 +92,8 @@ def main():
     elif not convert_flag:
         print "File entered was not a .mobi file."
         return
+    else:
+        print "Converting " + args.file + "...."
 
 if __name__ == '__main__':
     main()
