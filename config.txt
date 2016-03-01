@@ -1,6 +1,0 @@
-[config]
-email = psphacker22@yahoo.com
-server = smtp.gmail.com:587
-user = gizmodo22
-pass = jwufedwwnigafzpq
-
