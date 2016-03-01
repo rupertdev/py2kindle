@@ -2,6 +2,7 @@
 
 import argparse
 import ConfigParser
+import os
 import smtplib
 import sys
 import mimetypes
@@ -16,6 +17,7 @@ cp.read('config.txt')
 
 def send_mobi_mail(file_name):
     email = cp.get('config', 'email')
+    user = cp.get('config', 'user')
     if not email:
         print 'You have not configured a kindle email address, run py2kindle --config to add one.'
         exit()
@@ -23,7 +25,7 @@ def send_mobi_mail(file_name):
     mobi_file = open(file_name, 'rb')
     msg = MIMEMultipart()
     msg['Subject'] = 'convert'
-    msg['From'] = 'py2kindle'
+    msg['From'] = user
     msg['To'] = email
     mobi = MIMEApplication(
         mobi_file.read(),
@@ -42,7 +44,7 @@ def send_mobi_mail(file_name):
         print "Email was refused, check your send to kindle email address."
         exit()
     except smtplib.SMTPSenderRefused as e:
-        print "The SMTP server didn't accept your FROM address, please try antoher."
+        print e
         exit()
     except Exception as e:
         print e
@@ -52,18 +54,27 @@ def send_mobi_mail(file_name):
     print(file_name + " sent to " + email + "!")
 
 def config_emails():
+    print "Leave blank for unchanged."
     print "Enter your Kindle's email address:"
     kindle_email = raw_input()
+    if kindle_email is not '':
+        cp.set('config', 'email', kindle_email)
+
     print "Enter your SMTP Server Address:"
     smtp_server = raw_input()
+    if smtp_server is not '':
+        cp.set('config', 'server', smtp_server)
+
     print "Enter your SMTP Username (email):"
     user = raw_input()
+    if user is not '':
+        cp.set('config', 'user', user)
+
     print "Enter your SMTP Password:"
     password = raw_input()
-    cp.set('config', 'email', kindle_email)
-    cp.set('config', 'server', smtp_server)
-    cp.set('config', 'user', user)
-    cp.set('config', 'pass', password)
+    if password is not '':
+        cp.set('config', 'pass', kindle_email)
+
     with open('config.txt', 'wb') as cp_file:
         cp.write(cp_file)
 
@@ -87,10 +98,13 @@ def main():
 
     if args.config:
         config_emails()
-    elif '.mobi' in args.file:
-        send_mobi_mail(args.file)
+    elif '.mobi' in args.file or '.pdf' in args.file:
+        if (os.path.getsize(args.file)/1000 < 10000):
+            send_mobi_mail(args.file)
+        else:
+            print("File entered was greater than 10 MegaBytes, Amazon's Limit.")
     elif not convert_flag:
-        print "File entered was not a .mobi file."
+        print "File entered was not a .mobi or .pdf file."
         return
     else:
         print "Converting " + args.file + "...."
