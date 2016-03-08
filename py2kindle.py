@@ -23,6 +23,7 @@ def send_mobi_mail(file_name):
         exit()
 
     mobi_file = open(file_name, 'rb')
+    file_name = os.basename(file_name)
     msg = MIMEMultipart()
     msg['Subject'] = 'convert'
     msg['From'] = user
@@ -73,7 +74,7 @@ def config_emails():
     print "Enter your SMTP Password:"
     password = raw_input()
     if password is not '':
-        cp.set('config', 'pass', kindle_email)
+        cp.set('config', 'pass', password)
 
     with open('config.txt', 'wb') as cp_file:
         cp.write(cp_file)
