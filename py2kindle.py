@@ -23,7 +23,7 @@ def send_mobi_mail(file_name):
         exit()
 
     mobi_file = open(file_name, 'rb')
-    file_name = os.basename(file_name)
+    file_name = os.path.basename(file_name)
     msg = MIMEMultipart()
     msg['Subject'] = 'convert'
     msg['From'] = user
